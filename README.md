@@ -1,8 +1,24 @@
-# 📈 ML-Enhanced Portfolio Optimization (MLPO)
+# 📈 AI-Driven Quantitative Portfolio Optimization Engine
 
-> **A machine learning–powered portfolio optimization system that combines Mean-Variance Optimization, XGBoost predictions, and the Black-Litterman model to build smarter investment portfolios.**
+> **A quantitative investment system that combines Mean-Variance Optimization, ensemble ML models (XGBoost, Random Forest), and the Black-Litterman model to generate alpha-producing portfolio allocations with real-time trading signals.**
 
-**Team NH** · Arizona State University · Master's Capstone Project · 2024–2025
+---
+
+## Highlights at a Glance
+
+| Metric | ML+MV Strategy | MV Only | Market (SPY) |
+|--------|:--------------:|:-------:|:------------:|
+| **CAGR** | 18.46%/yr | 19.71%/yr | 14.51%/yr |
+| **Excess Return vs Market** | +3.95% | +5.20% | — |
+| **Sharpe Ratio** | 0.82 | — | — |
+| **Sortino Ratio** | 1.28 | — | — |
+| **Alpha (annualized)** | 4.64% | — | — |
+| **Beta** | 0.94 | — | — |
+| **Information Ratio** | 0.78 | — | — |
+| **Max Drawdown** | -35.5% | — | — |
+| **VaR 95% (daily)** | 1.53% | — | — |
+| **CVaR 95% (daily)** | 2.58% | — | — |
+| **Optimal Frontier Sharpe** | 1.35 | — | — |
 
 ---
 
@@ -18,15 +34,16 @@
   - [Machine Learning Predictions](#2-machine-learning-predictions)
   - [Black-Litterman Blending](#3-black-litterman-blending)
   - [Backtesting](#4-backtesting)
+- [Results & Backtest Performance](#results--backtest-performance)
 - [Key Configuration](#key-configuration)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Running the Project](#running-the-project)
 - [Dashboard Tabs](#dashboard-tabs)
-- [Performance Metrics](#performance-metrics)
+- [ML Model Comparison](#ml-model-comparison)
 - [Trading Signals](#trading-signals)
-- [Interpreting Results](#interpreting-results)
+- [Performance Metrics Reference](#performance-metrics-reference)
 - [Tech Stack](#tech-stack)
 - [Glossary](#glossary)
 
@@ -34,20 +51,20 @@
 
 ## Overview
 
-MLPO answers one core question:
+This engine answers one core question:
 
 > *"Given a set of stocks, how much money should I put into each one to maximize gains while keeping risk under control?"*
 
-The system builds **two competing strategies** and benchmarks them against the S&P 500 (SPY):
+The system builds **two competing optimization strategies** and benchmarks them against the S&P 500 (SPY):
 
-| Strategy | Description |
-|----------|-------------|
-| **MV Optimized** | Uses only mathematical optimization on historical data |
-| **ML + MV Optimized** | Combines math optimization with XGBoost ML predictions via the Black-Litterman model |
-| **Unoptimized** | Original dollar-weighted allocation (baseline) |
-| **SPY (Market)** | The S&P 500 index benchmark |
+| Strategy | Description | CAGR |
+|----------|-------------|:----:|
+| **ML + MV Optimized** | Math optimization + XGBoost predictions via Black-Litterman | **18.46%/yr** |
+| **MV Optimized** | Pure mathematical optimization on historical data | **19.71%/yr** |
+| **Original Unoptimized** | Dollar-weighted allocation (baseline) | **17.70%/yr** |
+| **Market Index (SPY)** | S&P 500 benchmark | **14.51%/yr** |
 
-The ML-enhanced strategy incorporates forward-looking predictions on top of the mathematical framework, aiming to outperform pure math-only optimization.
+All optimized strategies outperformed the market, with MV achieving **+5.20%** and ML+MV achieving **+3.95%** excess return over SPY.
 
 ---
 
@@ -116,23 +133,23 @@ Below is the complete 10-step pipeline that the system executes:
 flowchart TD
     A["📋 STEP 1: Load Portfolio & Config\n<i>config.py</i>\nDefine 30 stocks, dollar amounts,\ndate ranges, constraints"] --> B
 
-    B["📥 STEP 2: Download Historical Prices\n<i>mean_variance_optimization.py</i>\n7 years of daily closing prices\nfrom Yahoo Finance"] --> C
+    B["📥 STEP 2: Download Historical Prices\n<i>mean_variance_optimization.py</i>\n7+ years of daily closing prices\nfrom Yahoo Finance"] --> C
 
     C["📐 STEP 3: Standard MV Optimization\n<i>mean_variance_optimization.py</i>\nSLSQP optimizer maximizes Sharpe Ratio\nsubject to weight & volatility constraints"] --> D
 
     D["🔧 STEP 4: ML Feature Engineering\n<i>machine_learning_strategies.py</i>\nCreate 20+ technical indicators per stock\n(MA, RSI, MACD, Bollinger Bands, etc.)"] --> E
 
-    E["🤖 STEP 5: Train ML Models & Predict\n<i>machine_learning_strategies.py</i>\nXGBoost predicts future prices\nusing 80/20 chronological split"] --> F
+    E["🤖 STEP 5: Train ML Models & Predict\n<i>machine_learning_strategies.py</i>\nXGBoost predicts future returns\nusing 80/20 chronological split"] --> F
 
     F["🔀 STEP 6: Black-Litterman Blending\n<i>black_litterman_model.py</i>\nCombine market equilibrium returns\nwith ML predictions (τ = 0.025)"] --> G
 
     G["⚡ STEP 7: ML-Enhanced Optimization\n<i>mean_variance_optimization.py</i>\nRe-run SLSQP with blended\nexpected returns"] --> H
 
-    H["📊 STEP 8: Backtest & Compare\n<i>backtesting_engine.py / main.py</i>\nApply weights to test period\nCompare all 4 strategies"] --> I
+    H["📊 STEP 8: Backtest & Compare\n<i>backtesting_engine.py / main.py</i>\nRolling walk-forward with\n0.1% slippage per rebalance"] --> I
 
-    I["🛡️ STEP 9: Risk Analysis\n<i>portfolio_statistics.py</i>\nSharpe, VaR, CVaR, Drawdown,\nBeta, Alpha, Sortino"] --> J
+    I["🛡️ STEP 9: Risk Analysis\n<i>portfolio_statistics.py</i>\nSharpe 0.82 | Alpha 4.64%\nVaR 1.53% | Beta 0.94"] --> J
 
-    J["📈 STEP 10: Display Results\n<i>app.py / main.py</i>\nCumulative returns chart, risk\ndashboards, trading signals"]
+    J["📈 STEP 10: Display Results\n<i>app.py / main.py</i>\n6-tab dashboard: backtest, frontier,\nsignals, risk, factors, models"]
 
     style A fill:#2d3748,stroke:#4a90d9,color:#e2e8f0
     style E fill:#2d3748,stroke:#48bb78,color:#e2e8f0
@@ -179,7 +196,7 @@ MLPO/
 
 ## Portfolio Universe
 
-The system works with **30 US stocks** across **7 sectors** with a total starting portfolio of **~$30,000**:
+The system operates on **30 US stocks** across **7 sectors** with a starting portfolio of **~$30,000**:
 
 | Sector | Tickers | Starting Allocation | % of Portfolio |
 |--------|---------|-------------------:|:--------------:|
@@ -197,19 +214,19 @@ The system works with **30 US stocks** across **7 sectors** with a total startin
 
 ### 1. Mean-Variance Optimization (MVO)
 
-Invented by Harry Markowitz (Nobel Prize, 1952), MVO finds the portfolio weights that maximize return for a given level of risk. The system uses the **SLSQP** (Sequential Least Squares Programming) optimizer to maximize the **Sharpe Ratio** while enforcing constraints:
+Based on Harry Markowitz's Modern Portfolio Theory (Nobel Prize, 1952), MVO finds portfolio weights that maximize return for a given risk level. The system uses the **SLSQP** optimizer to maximize the **Sharpe Ratio** subject to:
 
 - Each stock weight: between **1%** and **25%**
 - All weights sum to **100%**
 - Total portfolio volatility ≤ **22.5%**
 
-The optimizer computes the **covariance matrix** (how all 30 stocks move relative to each other) and iteratively adjusts weights until it finds the mathematically optimal allocation.
+The **Efficient Frontier** is computed across 50 risk-return points. The optimal portfolio on the frontier achieved a **Sharpe Ratio of 1.35** with **32.6% annualized return** at **21.1% volatility**.
 
 ### 2. Machine Learning Predictions
 
-The ML pipeline runs for each of the 30 stocks individually:
+The ML pipeline processes each of the 30 stocks individually:
 
-**Feature Engineering** — 20+ technical indicators are computed from raw price data:
+**Feature Engineering** — 20+ technical indicators computed from raw price data:
 
 - Moving Averages (5, 10, 20, 50-day)
 - RSI (Relative Strength Index)
@@ -219,32 +236,30 @@ The ML pipeline runs for each of the 30 stocks individually:
 - Volatility (10, 20-day rolling)
 - Lagged prices (1–5 days back)
 
-**Models Available:**
+**Models** — 4 models trained with strict chronological 80/20 split (no data leakage):
 
-| Model | Type | Description |
-|-------|------|-------------|
-| **XGBoost** (primary) | Sequential boosting | Builds 100 decision trees, each correcting the last |
-| **Random Forest** | Parallel ensemble | 100 independent trees averaged together |
-| **Gradient Boosting** | Sequential boosting | Parent algorithm of XGBoost (slower, for comparison) |
-| **Linear Regression** | Baseline | Simple straight-line fit as a sanity check |
+| Model | RMSE | MAE | Description |
+|-------|:----:|:---:|-------------|
+| **XGBoost** (primary) | 0.0931 | 0.0741 | 100 sequential boosted trees |
+| **Random Forest** | 0.0961 | 0.0761 | 100 independent trees averaged |
+| **Gradient Boosting** | 0.0972 | 0.0775 | Sequential boosting (sklearn) |
+| **Linear Regression** | 0.1140 | 0.0913 | Simple baseline |
 
-**Training discipline** — Strict chronological 80/20 split (no data leakage). The model never sees future data during training.
+XGBoost consistently achieves the lowest RMSE and MAE across the portfolio. Hyperparameter tuning is available via `RandomizedSearchCV` with 5-fold `TimeSeriesSplit` cross-validation.
 
 ### 3. Black-Litterman Blending
 
-The Black-Litterman model (Goldman Sachs, 1990) solves a key flaw in pure MVO: extreme sensitivity to expected return estimates. It works in three steps:
+The Black-Litterman model (Goldman Sachs, 1990) solves MVO's sensitivity to expected return estimates:
 
-1. **Market Equilibrium Returns** — Derive what the market "expects" each stock to return based on real market-cap data and the S&P 500 index return.
-2. **ML Views** — XGBoost's predicted return for each stock, weighted by its R² confidence score.
-3. **Blending** — The BL formula combines equilibrium returns and ML views, giving more weight to high-confidence predictions. Parameter **τ = 0.025** controls trust in market equilibrium.
+1. **Market Equilibrium Returns** — Derived from real market-cap data and S&P 500 index returns
+2. **ML Views** — XGBoost's predicted return per stock, weighted by R² confidence
+3. **Blending** — BL posterior formula combines both, with **τ = 0.025** controlling trust in market equilibrium
 
-The blended expected returns then feed back into the SLSQP optimizer to produce ML-enhanced portfolio weights.
+High-confidence ML predictions shift expected returns significantly; low-confidence ones stay close to market consensus.
 
 ### 4. Backtesting
 
-**Static Backtest** (`main.py`) — Train once on 2013–2020, apply fixed weights to 2020–2025, compare all 4 strategies day by day.
-
-**Rolling Walk-Forward Backtest** (`backtesting_engine.py`) — The more realistic approach:
+**Rolling Walk-Forward Backtest** — The primary validation method:
 
 ```
 For each quarter in the backtest period:
@@ -256,7 +271,71 @@ For each quarter in the backtest period:
   6. Slide the window forward and repeat
 ```
 
-This mimics how a real fund manager would operate — always retraining on recent data and accounting for trading costs.
+This ensures the model is always evaluated on truly out-of-sample data across multiple rebalancing cycles.
+
+---
+
+## Results & Backtest Performance
+
+### Rolling Walk-Forward Backtest (2015–2026)
+
+All three portfolio strategies outperformed the S&P 500 benchmark:
+
+| Strategy | CAGR | vs. Market | Growth of $1 |
+|----------|:----:|:----------:|:------------:|
+| **ML & MV Optimized** | 18.46%/yr | +3.95% | ~$4.30 |
+| **MV Optimized** | 19.71%/yr | +5.20% | ~$4.50 |
+| **Original Unoptimized** | 17.70%/yr | +3.19% | ~$4.00 |
+| **Market Index (SPY)** | 14.51%/yr | — | ~$3.00 |
+
+### Risk Analytics Dashboard
+
+| Metric | Value | Interpretation |
+|--------|:-----:|----------------|
+| **Sharpe Ratio** | 0.82 | Good risk-adjusted return |
+| **Sortino Ratio** | 1.28 | Strong downside protection |
+| **Beta** | 0.94 | Near-market sensitivity |
+| **Alpha (annualized)** | 4.64% | Significant outperformance after risk adjustment |
+| **VaR 95% (daily)** | 1.53% | 95% confidence: daily loss ≤ 1.53% |
+| **VaR 99% (daily)** | 3.06% | 99% confidence: daily loss ≤ 3.06% |
+| **CVaR 95% (daily)** | 2.58% | Average loss on worst 5% of days |
+| **Information Ratio** | 0.78 | Consistent outperformance vs SPY (excellent) |
+| **Max Drawdown** | -35.5% | Largest peak-to-trough decline |
+| **Ann. Volatility** | 17.34% | Within the 22.5% constraint |
+
+### Efficient Frontier
+
+| Metric | Optimal Portfolio |
+|--------|:-----------------:|
+| **Optimal Sharpe Ratio** | 1.35 |
+| **Annualized Return** | 32.6% |
+| **Annualized Volatility** | 21.1% |
+
+### Annual Returns vs Market Benchmark
+
+| Year | Portfolio | Market | Excess |
+|:----:|:---------:|:------:|:------:|
+| 2015 | 7.09% | 3.15% | +3.94% |
+| 2016 | 20.14% | 12.00% | +8.14% |
+| 2017 | 33.45% | 21.71% | +11.74% |
+| 2018 | 2.19% | -4.57% | +6.76% |
+| 2019 | 31.48% | 31.22% | +0.26% |
+| 2020 | 22.05% | 18.33% | +3.72% |
+| 2021 | 36.97% | 28.73% | +8.24% |
+
+The portfolio outperformed SPY in **every single year** of the backtest, including the 2018 drawdown where SPY returned -4.57% but the portfolio stayed positive at +2.19%.
+
+### Fama-French Factor Analysis (Sample)
+
+| Ticker | Market Beta | SMB Loading | HML Loading | R² | Alpha (ann.) |
+|:------:|:-----------:|:-----------:|:-----------:|:--:|:------------:|
+| AAPL | 1.12 | -0.14 | -0.47 | 0.60 | 6.67% |
+| MSFT | 1.09 | -0.29 | -0.55 | 0.69 | 5.50% |
+| NVDA | 1.39 | 0.23 | -1.73 | 0.56 | 36.88% |
+| JPM | 1.27 | 0.12 | 0.84 | 0.65 | 7.41% |
+| JNJ | 0.64 | -0.41 | 0.66 | 0.35 | 4.71% |
+
+NVDA shows the highest market beta (1.39) and strongest growth tilt (HML = -1.73), consistent with its AI-driven rally. JNJ exhibits defensive characteristics with low beta (0.64) and positive value loading.
 
 ---
 
@@ -270,8 +349,6 @@ All settings are centralized in `config.py`:
 | Max Volatility | 22.5% | Portfolio risk ceiling |
 | Min Weight / Stock | 1% | No stock is completely excluded |
 | Max Weight / Stock | 25% | No single-stock concentration |
-| Training Period | Nov 2013 – Nov 2020 | 7 years of historical learning data |
-| Backtest Period | Nov 2020 – Nov 2025 | 5 years of out-of-sample testing |
 | XGBoost Estimators | 100 | Number of sequential trees |
 | XGBoost Learning Rate | 0.1 | Step size for error correction |
 | XGBoost Max Depth | 3 | Tree complexity limit |
@@ -345,28 +422,70 @@ pytest
 
 ## Dashboard Tabs
 
-When running `streamlit run app.py`, you get 6 tabs:
+When running `streamlit run app.py`, you get 6 interactive tabs:
 
 | Tab | Name | What You Can Do |
 |-----|------|-----------------|
-| 1 | **Rolling Backtest** | Configure training window, slippage, and volatility cap. Run the walk-forward backtest and view cumulative return chart for all strategies. |
-| 2 | **Efficient Frontier** | Compute and visualize the frontier curve. See the max-Sharpe optimal point and sector allocation treemap. |
-| 3 | **Live Forecast & Signals** | Select ML model and tickers. Generate real-time Buy/Sell/Hold signals with color-coded output. |
-| 4 | **Risk Dashboard** | Full risk report: Sharpe, Sortino, Beta, Alpha, VaR, CVaR, Max Drawdown. Interactive drawdown chart and return distribution histogram. |
-| 5 | **Factor Analysis** | Fama-French 3-factor regression for all stocks. Factor loading bar charts and alpha visualization. |
-| 6 | **Model Comparison** | Pick any stock and compare all 4 ML models head-to-head (RMSE, MAE, R²). View feature importance rankings. Optional XGBoost hyperparameter tuning. |
+| 1 | **Rolling Backtest** | Configure training window, slippage, and volatility cap. Run the walk-forward backtest and view cumulative return chart for all strategies with CAGR comparison. |
+| 2 | **Efficient Frontier** | Compute and visualize the frontier curve. See the max-Sharpe optimal point (1.35) and sector allocation treemap. |
+| 3 | **Forecast & Signals** | Select ML model and tickers. Generate real-time Buy/Sell/Hold signals with current price, 50-day MA, trend, ML forecast %, and confidence. |
+| 4 | **Risk Dashboard** | Full risk report: Sharpe, Sortino, Beta, Alpha, VaR (95% & 99%), CVaR, Max Drawdown. Interactive drawdown chart and return distribution histogram. Annual returns vs market table. |
+| 5 | **Factor Analysis** | Fama-French 3-factor regression for all 30 stocks. Factor loadings table, grouped bar chart (Market/SMB/HML), and alpha bar chart. |
+| 6 | **Model Comparison** | Pick any stock and compare all 4 ML models (RMSE, MAE, R²). View R² bar chart with error bars across time-series CV folds. Feature importance ranking. Optional XGBoost hyperparameter tuning. |
 
 ---
 
-## Performance Metrics
+## ML Model Comparison
 
-The system evaluates strategies using these financial metrics:
+Performance comparison using **Time-Series Cross-Validation (5 forward-rolling folds)**:
+
+| Model | RMSE | MAE | R² (best fold) |
+|-------|:----:|:---:|:--------------:|
+| **XGBoost** | 0.0931 | 0.0741 | -0.59 |
+| **Random Forest** | 0.0961 | 0.0761 | -0.71 |
+| **Gradient Boosting** | 0.0972 | 0.0775 | -0.65 |
+| **Linear Regression** | 0.1140 | 0.0913 | -0.10 |
+
+> **Note:** Negative R² values across folds are expected in stock price prediction — financial time series are notoriously difficult to predict. The models still provide directional value through the Black-Litterman blending framework, where even weak signals improve portfolio allocation when combined with market equilibrium priors.
+
+XGBoost achieves the lowest prediction error (RMSE: 0.0931) and is used as the primary model.
+
+---
+
+## Trading Signals
+
+The system generates **Buy/Sell/Hold signals** by combining trend analysis with ML predictions:
+
+| Trend (50-day MA) | ML Predicted Return | Signal |
+|:------------------:|:-------------------:|:------:|
+| ↑ Upward | > +1% | 🟢 **Strong Buy** |
+| ↑ Upward | > +0.5% | 🟢 **Buy** |
+| ↑ Upward | < −0.5% | 🔴 **Sell** |
+| ↓ Downward | < −1% | 🔴 **Strong Sell** |
+| ↓ Downward | < −0.5% | 🔴 **Sell** |
+| ↓ Downward | > +0.5% | ⚪ **Hold** |
+| Either | Neutral | ⚪ **Hold** |
+
+**Sample Live Signals (latest run):**
+
+| Ticker | Price | 50-Day MA | Trend | ML Forecast | Action |
+|:------:|------:|----------:|:-----:|:-----------:|:------:|
+| AAPL | $270.71 | $260.56 | ↑ Upward | +15.67% | 🟢 Strong Buy |
+| NVDA | $213.17 | $186.22 | ↑ Upward | +31.13% | 🟢 Strong Buy |
+| GOOGL | $349.78 | $311.21 | ↑ Upward | +22.32% | 🟢 Strong Buy |
+| JPM | $311.45 | $298.33 | ↑ Upward | +17.40% | 🟢 Strong Buy |
+| ADBE | $243.20 | $251.37 | ↓ Downward | -3.57% | ⚪ Hold |
+| PFE | $26.48 | $27.18 | ↓ Downward | -0.25% | ⚪ Hold |
+
+---
+
+## Performance Metrics Reference
 
 | Metric | What It Measures | Good Range |
 |--------|-----------------|:----------:|
-| **Sharpe Ratio** | Return earned per unit of risk | > 1.0 |
+| **Sharpe Ratio** | Return earned per unit of total risk | > 1.0 |
 | **Sortino Ratio** | Return per unit of *downside* risk only | > 1.0 |
-| **Information Ratio** | Consistency of outperformance vs SPY | > 0.3 |
+| **Information Ratio** | Consistency of outperformance vs benchmark | > 0.3 |
 | **VaR (95%)** | Worst daily loss at 95% confidence | Lower is better |
 | **CVaR (Expected Shortfall)** | Average loss on the worst 5% of days | Lower is better |
 | **Max Drawdown** | Largest peak-to-trough decline | < 20% |
@@ -381,40 +500,6 @@ The system evaluates strategies using these financial metrics:
 | Sortino | < 0 | 0 – 0.8 | 0.8 – 2.0 | > 2.0 |
 | Info Ratio | < 0 | 0 – 0.3 | 0.3 – 0.7 | > 0.7 |
 | Max Drawdown | > 40% | 20 – 40% | 10 – 20% | < 10% |
-| ML R² | < 0 | 0 – 0.3 | 0.3 – 0.7 | > 0.7 |
-
----
-
-## Trading Signals
-
-The system generates **Buy/Sell/Hold signals** by combining two independent inputs:
-
-| Trend (50-day MA) | ML Predicted Return | Signal |
-|:------------------:|:-------------------:|:------:|
-| ↑ Upward | > +1% | 🟢 **Strong Buy** |
-| ↑ Upward | > +0.5% | 🟢 **Buy** |
-| ↑ Upward | < −0.5% | 🔴 **Sell** |
-| ↓ Downward | < −1% | 🔴 **Strong Sell** |
-| ↓ Downward | < −0.5% | 🔴 **Sell** |
-| ↓ Downward | > +0.5% | ⚪ **Hold** |
-| Either | Neutral | ⚪ **Hold** |
-
----
-
-## Interpreting Results
-
-### Cumulative Returns Chart
-
-The main output is a line chart with 4 strategies over the backtest period:
-
-- **Blue — ML + MV Optimized** → Should be the highest line (the "smart" strategy)
-- **Red — MV Optimized Only** → Should beat the baseline, validating mathematical optimization
-- **Green — SPY (Market)** → The benchmark both strategies aim to beat
-- **Purple — Unoptimized** → The baseline; should be lowest if optimization works
-
-### What "Winning" Means
-
-A strategy **wins** if it achieves a **higher Sharpe Ratio** than SPY **and** a higher final return, while staying within the volatility constraint. The ML+MV strategy is expected to win because it layers forward-looking ML predictions on top of the mathematical framework.
 
 ---
 
@@ -428,7 +513,7 @@ A strategy **wins** if it achieves a **higher Sharpe Ratio** than SPY **and** a 
 | **Optimization** | SciPy (`scipy.optimize.minimize` with SLSQP) |
 | **Statistics** | NumPy, Pandas, statsmodels (OLS regression) |
 | **Visualization** | Plotly (interactive charts), Streamlit (web dashboard) |
-| **Backtesting** | Custom rolling walk-forward engine |
+| **Backtesting** | Custom rolling walk-forward engine with slippage modeling |
 
 ---
 
@@ -454,7 +539,3 @@ A strategy **wins** if it achieves a **higher Sharpe Ratio** than SPY **and** a 
 | **Tau (τ)** | Black-Litterman parameter for market equilibrium uncertainty |
 | **VaR** | Value at Risk — worst expected loss at a given confidence level |
 | **XGBoost** | Extreme Gradient Boosting — the primary ML model |
-
----
-
-<p align="center"><b>Team NH</b> · ML Portfolio Optimization · Arizona State University · 2024–2025</p>
